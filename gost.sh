@@ -395,7 +395,7 @@ function encrypt() {
   echo -e "-----------------------------------"
   echo -e "[1] tls隧道"
   echo -e "[2] ws隧道"
-  echo -e "[3] wss隧道"
+  echo -e "[3] mwss隧道"
   echo -e "注意: 同一则转发，中转与落地传输类型必须对应！本脚本默认开启tcp+udp"
   echo -e "-----------------------------------"
   read -p "请选择转发传输类型: " numencrypt
@@ -421,7 +421,7 @@ function enpeer() {
   echo -e "[1] 不加密转发"
   echo -e "[2] tls隧道"
   echo -e "[3] ws隧道"
-  echo -e "[4] wss隧道"
+  echo -e "[4] mwss隧道"
   echo -e "注意: 同一则转发，中转与落地传输类型必须对应！本脚本默认同一配置的传输类型相同"
   echo -e "此脚本仅支持简单型均衡负载，具体可参考官方文档"
   echo -e "gost均衡负载官方文档：https://docs.ginuerzh.xyz/gost/load-balancing"
@@ -447,7 +447,7 @@ function cdn() {
   echo -e "-----------------------------------"
   echo -e "[1] 不加密转发"
   echo -e "[2] ws隧道"
-  echo -e "[3] wss隧道"
+  echo -e "[3] mwss隧道"
   echo -e "注意: 同一则转发，中转与落地传输类型必须对应！"
   echo -e "此功能只需在中转机设置"
   echo -e "-----------------------------------"
@@ -498,7 +498,7 @@ function cert() {
         if [ ! -d "$HOME/gost_cert" ]; then
           mkdir $HOME/gost_cert
         fi
-        if "$HOME"/.acme.sh/acme.sh --installcert -d "${domain}" --fullchainpath $HOME/gost_cert/cert.pem --keypath $HOME/gost_cert/key.pem --ecc --force; then
+        if "$HOME"/.acme.sh/acme.sh --installcert -d "${domain}" --fullchainpath $HOME/cert/fullchain.cer --keypath $HOME/cert/hkamd4.menjadiguru.eu.org.key --ecc --force; then
           echo -e "SSL 证书配置成功，且会自动续签，证书及秘钥位于用户目录下的 ${Red_font_prefix}gost_cert${Font_color_suffix} 目录"
           echo -e "证书目录名与证书文件名请勿更改; 删除 gost_cert 目录后用脚本重启,即自动启用gost内置证书"
           echo -e "-----------------------------------"
@@ -517,7 +517,7 @@ function cert() {
         if [ ! -d "$HOME/gost_cert" ]; then
           mkdir $HOME/gost_cert
         fi
-        if "$HOME"/.acme.sh/acme.sh --installcert -d "${domain}" --fullchainpath $HOME/gost_cert/cert.pem --keypath $HOME/gost_cert/key.pem --ecc --force; then
+        if "$HOME"/.acme.sh/acme.sh --installcert -d "${domain}" --fullchainpath $HOME/cert/fullchain.cer --keypath $HOME/cert/hkamd4.menjadiguru.eu.org.key --ecc --force; then
           echo -e "SSL 证书配置成功，且会自动续签，证书及秘钥位于用户目录下的 ${Red_font_prefix}gost_cert${Font_color_suffix} 目录"
           echo -e "证书目录名与证书文件名请勿更改; 删除 gost_cert 目录后使用脚本重启, 即重新启用gost内置证书"
           echo -e "-----------------------------------"
@@ -533,7 +533,7 @@ function cert() {
       mkdir $HOME/gost_cert
     fi
     echo -e "-----------------------------------"
-    echo -e "已在用户目录建立 ${Red_font_prefix}gost_cert${Font_color_suffix} 目录，请将证书文件 cert.pem 与秘钥文件 key.pem 上传到该目录"
+    echo -e "已在用户目录建立 ${Red_font_prefix}gost_cert${Font_color_suffix} 目录，请将证书文件 cert.pem 与秘钥文件 key.pem 上传到该目录，已经修改证书文件指向/root/cert中的fullchain.cer和hkamd4.menjadiguru.eu.org.key"
     echo -e "证书与秘钥文件名必须与上述一致，目录名也请勿更改"
     echo -e "上传成功后，用脚本重启gost会自动启用，无需再设置; 删除 gost_cert 目录后用脚本重启,即重新启用gost内置证书"
     echo -e "-----------------------------------"
@@ -547,7 +547,7 @@ function decrypt() {
   echo -e "-----------------------------------"
   echo -e "[1] tls"
   echo -e "[2] ws"
-  echo -e "[3] wss"
+  echo -e "[3] mwss"
   echo -e "注意: 同一则转发，中转与落地传输类型必须对应！本脚本默认开启tcp+udp"
   echo -e "-----------------------------------"
   read -p "请选择解密传输类型: " numdecrypt
@@ -611,7 +611,7 @@ function method() {
 		  \"udp://:$s_port\"
 	],
 	\"ChainNodes\": [
-		\"relay+wss://$d_ip:$d_port\"" >>$gost_conf_path
+		\"relay+mwss://$d_ip:$d_port\"" >>$gost_conf_path
     elif [ "$is_encrypt" == "peertls" ]; then
       echo "        \"tcp://:$s_port\",
     	\"udp://:$s_port\"
@@ -629,7 +629,7 @@ function method() {
     	\"udp://:$s_port\"
 	],
 	\"ChainNodes\": [
-    	\"relay+wss://:?ip=/root/$d_ip.txt&strategy=$d_port\"" >>$gost_conf_path
+    	\"relay+mwss://:?ip=/root/$d_ip.txt&strategy=$d_port\"" >>$gost_conf_path
     elif [ "$is_encrypt" == "cdnws" ]; then
       echo "        \"tcp://:$s_port\",
     	\"udp://:$s_port\"
@@ -641,10 +641,10 @@ function method() {
     	\"udp://:$s_port\"
 	],
 	\"ChainNodes\": [
-    	\"relay+wss://$d_ip?host=$d_port\"" >>$gost_conf_path
+    	\"relay+mwss://$d_ip?host=$d_port\"" >>$gost_conf_path
     elif [ "$is_encrypt" == "decrypttls" ]; then
       if [ -d "$HOME/gost_cert" ]; then
-        echo "        \"relay+tls://:$s_port/$d_ip:$d_port?cert=/root/gost_cert/cert.pem&key=/root/gost_cert/key.pem\"" >>$gost_conf_path
+        echo "        \"relay+tls://:$s_port/$d_ip:$d_port?cert=/root/cert/fullchain.cer&key=/root/cert/hkamd4.menjadiguru.eu.org.key\"" >>$gost_conf_path
       else
         echo "        \"relay+tls://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
       fi
@@ -652,9 +652,9 @@ function method() {
       echo "        \"relay+ws://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
     elif [ "$is_encrypt" == "decryptwss" ]; then
       if [ -d "$HOME/gost_cert" ]; then
-        echo "        \"relay+wss://:$s_port/$d_ip:$d_port?cert=/root/gost_cert/cert.pem&key=/root/gost_cert/key.pem\"" >>$gost_conf_path
+        echo "        \"relay+mwss://:$s_port/$d_ip:$d_port?cert=/root/cert/fullchain.cer&key=/root/cert/hkamd4.menjadiguru.eu.org.key\"" >>$gost_conf_path
       else
-        echo "        \"relay+wss://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
+        echo "        \"relay+mwss://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
       fi
     elif [ "$is_encrypt" == "ss" ]; then
       echo "        \"ss://$d_ip:$s_port@:$d_port\"" >>$gost_conf_path
@@ -692,7 +692,7 @@ function method() {
 		        \"udp://:$s_port\"
 		    ],
 		    \"ChainNodes\": [
-		        \"relay+wss://$d_ip:$d_port\"" >>$gost_conf_path
+		        \"relay+mwss://$d_ip:$d_port\"" >>$gost_conf_path
     elif [ "$is_encrypt" == "peertls" ]; then
       echo "                \"tcp://:$s_port\",
                 \"udp://:$s_port\"
@@ -710,7 +710,7 @@ function method() {
                 \"udp://:$s_port\"
             ],
             \"ChainNodes\": [
-                \"relay+wss://:?ip=/root/$d_ip.txt&strategy=$d_port\"" >>$gost_conf_path
+                \"relay+mwss://:?ip=/root/$d_ip.txt&strategy=$d_port\"" >>$gost_conf_path
     elif [ "$is_encrypt" == "cdnws" ]; then
       echo "                \"tcp://:$s_port\",
                 \"udp://:$s_port\"
@@ -722,10 +722,10 @@ function method() {
                 \"udp://:$s_port\"
             ],
             \"ChainNodes\": [
-                \"relay+wss://$d_ip?host=$d_port\"" >>$gost_conf_path
+                \"relay+mwss://$d_ip?host=$d_port\"" >>$gost_conf_path
     elif [ "$is_encrypt" == "decrypttls" ]; then
       if [ -d "$HOME/gost_cert" ]; then
-        echo "        		  \"relay+tls://:$s_port/$d_ip:$d_port?cert=/root/gost_cert/cert.pem&key=/root/gost_cert/key.pem\"" >>$gost_conf_path
+        echo "        		  \"relay+tls://:$s_port/$d_ip:$d_port?cert=/root/cert/fullchain.cer&key=/root/cert/hkamd4.menjadiguru.eu.org.key\"" >>$gost_conf_path
       else
         echo "        		  \"relay+tls://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
       fi
@@ -733,9 +733,9 @@ function method() {
       echo "        		  \"relay+ws://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
     elif [ "$is_encrypt" == "decryptwss" ]; then
       if [ -d "$HOME/gost_cert" ]; then
-        echo "        		  \"relay+wss://:$s_port/$d_ip:$d_port?cert=/root/gost_cert/cert.pem&key=/root/gost_cert/key.pem\"" >>$gost_conf_path
+        echo "        		  \"relay+mwss://:$s_port/$d_ip:$d_port?cert=/root/cert/fullchain.cer&key=/root/cert/hkamd4.menjadiguru.eu.org.key\"" >>$gost_conf_path
       else
-        echo "        		  \"relay+wss://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
+        echo "        		  \"relay+mwss://:$s_port/$d_ip:$d_port\"" >>$gost_conf_path
       fi
     elif [ "$is_encrypt" == "ss" ]; then
       echo "        \"ss://$d_ip:$s_port@:$d_port\"" >>$gost_conf_path
@@ -796,7 +796,7 @@ function show_all_conf() {
     elif [ "$is_encrypt" == "encryptws" ]; then
       str="  ws隧道 "
     elif [ "$is_encrypt" == "encryptwss" ]; then
-      str=" wss隧道 "
+      str=" mwss隧道 "
     elif [ "$is_encrypt" == "peerno" ]; then
       str=" 不加密均衡负载 "
     elif [ "$is_encrypt" == "peertls" ]; then
